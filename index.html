@@ -194,12 +194,27 @@
       }
 
       .btn-secondary {
-        background: #f3f4f6;
-        color: #374151;
+        background: #3b82f6;
+        color: #fff;
+        border: none;
+        transition: background 0.2s;
       }
 
       .btn-secondary:hover {
-        background: #e5e7eb;
+        background: #2563eb;
+      }
+      .accordion-content {
+        max-height: 1000px;
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+        opacity: 1;
+        display: block;
+      }
+      .accordion-content.collapsed {
+        max-height: 0;
+        opacity: 0;
+        display: block;
+        pointer-events: none;
       }
 
       .btn-primary {
@@ -214,7 +229,6 @@
       .main-container {
         display: flex;
         flex: 1;
-        overflow: hidden;
       }
 
       .panel {
@@ -223,6 +237,7 @@
         flex-direction: column;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        min-height: 100%;
       }
 
       .panel.collapsed {
@@ -234,6 +249,10 @@
         width: 320px;
         min-width: 320px;
         border-right: 1px solid #e5e7eb;
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
       }
 
       .right-panel {
@@ -293,7 +312,8 @@
 
       .panel-content {
         flex: 1;
-        overflow: hidden;
+        overflow-y: auto;
+        height: 100%;
         transition: opacity 0.2s;
       }
 
@@ -325,10 +345,10 @@
       .left-panel-content {
         flex: 1;
         overflow-y: auto;
+        height: 100%;
       }
 
       .nav-section {
-        border-bottom: 1px solid #f3f4f6;
       }
 
       .nav-section-header {
@@ -978,87 +998,147 @@
         <div class="panel-content">
           <div class="left-panel-content">
             <div class="nav-section">
-              <div
-                class="nav-section-header"
-                style="
-                  display: flex;
-                  align-items: center;
-                  justify-content: space-between;
-                  background: #f9fafb;
-                  border-bottom: 1px solid #e5e7eb;
-                  padding: 12px 16px;
-                  font-size: 13px;
-                  font-weight: 600;
-                  color: #374151;
-                ">
-                <span>Course Information</span>
-                <button
-                  class="collapse-btn"
-                  id="leftCollapseBtn"
-                  title="Collapse panel">
-                  ◀
-                </button>
-              </div>
-              <div>
-                <div class="nav-item" data-section="basic">
-                  Basic Information
+              <div class="accordion-section" id="courseInfoAccordion">
+                <div
+                  class="nav-section-header accordion-header"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    background: #f9fafb;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding: 12px 16px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #374151;
+                    cursor: pointer;
+                  ">
+                  <span>Course Information</span>
+                  <span style="flex: 1"></span>
+                  <span class="accordion-toggle" id="courseInfoToggle">▼</span>
                 </div>
-                <div class="nav-item" data-section="academic">
-                  Academic Framework
-                </div>
-                <div class="nav-item" data-section="resources">Resources</div>
-                <div class="nav-item" data-section="deliverables">
-                  Student Deliverables
+                <div class="accordion-content" id="courseInfoContent">
+                  <div class="nav-item" data-section="basic">
+                    Basic Information
+                  </div>
+                  <div class="nav-item" data-section="academic">
+                    Academic Framework
+                  </div>
+                  <div class="nav-item" data-section="resources">Resources</div>
+                  <div class="nav-item" data-section="deliverables">
+                    Student Deliverables
+                  </div>
                 </div>
               </div>
             </div>
             <div class="nav-section">
-              <div
-                class="nav-section-header"
-                style="
-                  background: #f9fafb;
-                  border-bottom: 1px solid #e5e7eb;
-                  padding: 12px 16px;
-                  font-size: 13px;
-                  font-weight: 600;
-                  color: #374151;
-                ">
-                Course Structure
+              <div class="accordion-section" id="courseStructureAccordion">
+                <div
+                  class="nav-section-header accordion-header"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    background: #f9fafb;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding: 12px 16px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #374151;
+                    cursor: pointer;
+                  ">
+                  <span>Course Structure</span>
+                  <span style="flex: 1"></span>
+                  <span class="accordion-toggle" id="courseStructureToggle"
+                    >▼</span
+                  >
+                </div>
+                <div class="accordion-content" id="courseStructureContent">
+                  <div>
+                    <div class="structure-item expanded" id="unit1">
+                      <span class="expand-icon">▶</span>
+                      <span>Challenge Unit 1: Great Depression & WWII</span>
+                    </div>
+                    <div class="structure-children">
+                      <div class="structure-child" data-task="turn-20th">
+                        <div class="child-bullet"></div>
+                        <span>Turn of the 20th Century</span>
+                      </div>
+                      <div
+                        class="structure-child active"
+                        data-task="wwii-theaters">
+                        <div class="child-bullet"></div>
+                        <span>WWII: Pacific and European Theaters</span>
+                      </div>
+                      <div class="structure-child" data-task="great-depression">
+                        <div class="child-bullet"></div>
+                        <span>Great Depression</span>
+                      </div>
+                      <div class="structure-child" data-task="new-deal">
+                        <div class="child-bullet"></div>
+                        <span>New Deal</span>
+                      </div>
+                    </div>
+                    <div class="structure-item" id="unit2">
+                      <span class="expand-icon">▶</span>
+                      <span>Challenge Unit 2: Cold War & Civil Rights</span>
+                    </div>
+                    <div class="structure-item" id="unit3">
+                      <span class="expand-icon">▶</span>
+                      <span>Challenge Unit 3: Modern Era (1980-2008)</span>
+                    </div>
+                    <div class="structure-item" id="capstone">
+                      <span class="expand-icon">▶</span>
+                      <span>Capstone: Policy Analysis</span>
+                    </div>
+                  </div>
+                  <div style="padding: 16px 20px 0 20px">
+                    <button
+                      id="addFolderBtn"
+                      class="btn btn-secondary"
+                      style="width: 100%; margin-bottom: 24px;">
+                      + Add Folder
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div class="structure-item expanded" id="unit1">
-                  <span class="expand-icon">▶</span>
-                  <span>Challenge Unit 1: Great Depression & WWII</span>
+            </div>
+            <div class="nav-section">
+              <div class="accordion-section" id="somethingElseAccordion">
+                <div
+                  class="nav-section-header accordion-header"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: flex-start;
+                    background: #f9fafb;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding: 12px 16px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    color: #374151;
+                    cursor: pointer;
+                  ">
+                  <span>Something Else</span>
+                  <span style="flex: 1"></span>
+                  <span class="accordion-toggle" id="somethingElseToggle"
+                    >▼</span
+                  >
                 </div>
-                <div class="structure-children">
-                  <div class="structure-child" data-task="turn-20th">
-                    <div class="child-bullet"></div>
-                    <span>Turn of the 20th Century</span>
+                <div class="accordion-content" id="somethingElseContent">
+                  <div style="padding: 0 20px 16px 20px">
+                    <p
+                      style="
+                        color: #374151;
+                        font-size: 14px;
+                        margin-top: 16px;
+                        padding: 12px 16px;
+                        font-weight: 500;
+                      ">
+                      You can add a new section here to include more content or
+                      features as needed.
+                    </p>
                   </div>
-                  <div class="structure-child active" data-task="wwii-theaters">
-                    <div class="child-bullet"></div>
-                    <span>WWII: Pacific and European Theaters</span>
-                  </div>
-                  <div class="structure-child" data-task="great-depression">
-                    <div class="child-bullet"></div>
-                    <span>Great Depression</span>
-                  </div>
-                  <div class="structure-child" data-task="new-deal">
-                    <div class="child-bullet"></div>
-                    <span>New Deal</span>
-                  </div>
-                </div>
-                <div class="structure-item" id="unit2">
-                  <span class="expand-icon">▶</span>
-                  <span>Challenge Unit 2: Cold War & Civil Rights</span>
-                </div>
-                <div class="structure-item" id="unit3">
-                  <span class="expand-icon">▶</span>
-                  <span>Challenge Unit 3: Modern Era (1980-2008)</span>
-                </div>
-                <div class="structure-item" id="capstone">
-                  <span class="expand-icon">▶</span>
-                  <span>Capstone: Policy Analysis</span>
                 </div>
               </div>
             </div>
@@ -1348,7 +1428,7 @@ Communicate historical arguments effectively</textarea
         <div class="panel-content">
           <div class="right-panel-header">
             <select class="tool-selector" id="toolSelector">
-              <option value="audit">Audit Logs</option>
+              <option value="audit">Audit Log</option>
               <option value="workflow">Workflow & Approval</option>
               <option value="comments">Comments</option>
               <option value="ai">AI Agent</option>
@@ -1359,8 +1439,35 @@ Communicate historical arguments effectively</textarea
               <div class="audit-item">
                 <div class="audit-icon">📝</div>
                 <div class="audit-content">
-                  <div class="audit-action">S. Miller modified Segment 2</div>
-                  <div class="audit-time">3 hours ago</div>
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: flex-start;
+                    ">
+                    <div>
+                      <div class="audit-action">
+                        S. Miller modified Segment 2
+                      </div>
+                      <div
+                        class="audit-time"
+                        style="display: inline-block; margin-right: 12px">
+                        3 hours ago
+                      </div>
+                    </div>
+                    <span
+                      style="
+                        background: #e0f2fe;
+                        color: #2563eb;
+                        font-size: 12px;
+                        font-weight: 600;
+                        border-radius: 12px;
+                        padding: 4px 12px;
+                        margin-left: auto;
+                      "
+                      >Current Phase</span
+                    >
+                  </div>
                 </div>
               </div>
               <div class="audit-item">
@@ -1473,6 +1580,9 @@ Communicate historical arguments effectively</textarea
         rightPanelCollapsed: false,
         currentTool: "audit",
         currentSection: "task",
+        courseInfoOpen: true,
+        courseStructureOpen: true,
+        somethingElseOpen: true,
       };
 
       // Initialize when DOM is loaded
@@ -1506,16 +1616,27 @@ Communicate historical arguments effectively</textarea
         // Panel collapse buttons
         document
           .getElementById("leftCollapseBtn")
-          .addEventListener("click", toggleLeftPanel);
+          ?.addEventListener("click", toggleLeftPanel);
         document
           .getElementById("rightCollapseBtn")
-          .addEventListener("click", toggleRightPanel);
+          ?.addEventListener("click", toggleRightPanel);
         document
           .getElementById("leftCollapsedIcon")
-          .addEventListener("click", toggleLeftPanel);
+          ?.addEventListener("click", toggleLeftPanel);
         document
           .getElementById("rightCollapsedIcon")
-          .addEventListener("click", toggleRightPanel);
+          ?.addEventListener("click", toggleRightPanel);
+
+        // Accordion toggles
+        document
+          .getElementById("courseInfoToggle")
+          .addEventListener("click", toggleCourseInfoAccordion);
+        document
+          .getElementById("courseStructureToggle")
+          .addEventListener("click", toggleCourseStructureAccordion);
+        document
+          .getElementById("somethingElseToggle")
+          .addEventListener("click", toggleSomethingElseAccordion);
 
         // Navigation items
         document.querySelectorAll(".nav-item").forEach((item) => {
@@ -1566,6 +1687,62 @@ Communicate historical arguments effectively</textarea
         // Initialize default states
         showTask("wwii-theaters");
         activateTool("audit");
+        updateAccordionStates();
+      }
+
+      function toggleCourseInfoAccordion() {
+        appState.courseInfoOpen = !appState.courseInfoOpen;
+        updateAccordionStates();
+      }
+
+      function toggleCourseStructureAccordion() {
+        appState.courseStructureOpen = !appState.courseStructureOpen;
+        updateAccordionStates();
+      }
+
+      function updateAccordionStates() {
+        // Course Info
+        const infoContent = document.getElementById("courseInfoContent");
+        const infoToggle = document.getElementById("courseInfoToggle");
+        if (appState.courseInfoOpen) {
+          infoContent.classList.remove("collapsed");
+          infoToggle.textContent = "▲";
+        } else {
+          infoContent.classList.add("collapsed");
+          infoToggle.textContent = "▼";
+        }
+        // Course Structure
+        const structureContent = document.getElementById(
+          "courseStructureContent"
+        );
+        const structureToggle = document.getElementById(
+          "courseStructureToggle"
+        );
+        if (appState.courseStructureOpen) {
+          structureContent.classList.remove("collapsed");
+          structureToggle.textContent = "▲";
+        } else {
+          structureContent.classList.add("collapsed");
+          structureToggle.textContent = "▼";
+        }
+        // Something Else
+        const somethingElseContent = document.getElementById(
+          "somethingElseContent"
+        );
+        const somethingElseToggle = document.getElementById(
+          "somethingElseToggle"
+        );
+        if (appState.somethingElseOpen) {
+          somethingElseContent.classList.remove("collapsed");
+          somethingElseToggle.textContent = "▲";
+        } else {
+          somethingElseContent.classList.add("collapsed");
+          somethingElseToggle.textContent = "▼";
+        }
+      }
+      function toggleSomethingElseAccordion() {
+        appState.somethingElseOpen = !appState.somethingElseOpen;
+        updateAccordionStates();
       }
 
       function toggleVersionDropdown() {
