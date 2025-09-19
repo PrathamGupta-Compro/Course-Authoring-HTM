@@ -663,7 +663,6 @@
       }
 
       .tool-selector {
-        width: 100%;
         padding: 8px 12px;
         border: 1px solid #d1d5db;
         border-radius: 6px;
@@ -732,7 +731,7 @@
       .progress-step {
         display: flex;
         align-items: flex-start;
-        gap: 12px;
+        gap: 16px;
       }
 
       .step-circle {
@@ -921,6 +920,60 @@
       .task-btn.primary:hover {
         background: #2563eb;
       }
+
+      /* Improved styling for workflow details and button container */
+      .progress-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .progress-step > .step-details {
+        flex: 1;
+      }
+      .progress-step > .step-circle {
+        margin-top: 4px;
+      }
+      .progress-step .step-btn-details-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+        margin-left: 0;
+      }
+      .show-details-btn {
+        margin-top: 6px;
+        margin-bottom: 2px;
+        padding: 4px 10px;
+        background: #f3f4f6;
+        color: #2563eb;
+        border: 1px solid #e0e7ef;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+        display: inline-block;
+        box-shadow: none;
+      }
+      .show-details-btn:hover {
+        background: #e0f2fe;
+        border-color: #2563eb;
+      }
+      .workflow-details {
+        margin-top: 2px;
+        margin-left: 30px;
+        padding: 8px 12px;
+        background: #f9fafb;
+        border-radius: 5px;
+        color: #374151;
+        font-size: 13px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e5e7eb;
+        display: none;
+        width: 80%;
+        word-break: break-word;
+        position: relative;
+      }
     </style>
   </head>
   <body>
@@ -1096,7 +1149,7 @@
                     <button
                       id="addFolderBtn"
                       class="btn btn-secondary"
-                      style="width: 100%; margin-bottom: 24px;">
+                      style="width: 100%; margin-bottom: 24px">
                       + Add Folder
                     </button>
                   </div>
@@ -1417,7 +1470,12 @@ Communicate historical arguments effectively</textarea
 
       <div id="rightPanel" class="panel right-panel">
         <div class="panel-header">
-          <div class="panel-title">Audit Trail</div>
+          <select class="tool-selector" id="toolSelector" style="width: 80%">
+            <option value="audit">Audit Log</option>
+            <option value="workflow">Workflow & Approval</option>
+            <option value="comments">Comments</option>
+            <option value="ai">AI Agent</option>
+          </select>
           <button
             class="collapse-btn"
             id="rightCollapseBtn"
@@ -1426,14 +1484,7 @@ Communicate historical arguments effectively</textarea
           </button>
         </div>
         <div class="panel-content">
-          <div class="right-panel-header">
-            <select class="tool-selector" id="toolSelector">
-              <option value="audit">Audit Log</option>
-              <option value="workflow">Workflow & Approval</option>
-              <option value="comments">Comments</option>
-              <option value="ai">AI Agent</option>
-            </select>
-          </div>
+          <!-- right-panel-header and dropdown removed, dropdown is now in panel-header -->
           <div class="right-panel-content">
             <div id="audit-tool">
               <div class="audit-item">
@@ -1497,14 +1548,64 @@ Communicate historical arguments effectively</textarea
                       <div class="step-label">Blueprint</div>
                       <div class="step-status">Completed</div>
                     </div>
+                    <div class="step-btn-details-container">
+                      <button
+                        class="show-details-btn"
+                        onclick="toggleWorkflowDetails('blueprint')">
+                        Show Details
+                      </button>
+                    </div>
                   </div>
-                  <div class="step-connector completed"></div>
+                  <div style="display: flex">
+                    <div class="step-connector completed"></div>
+                    <div
+                      class="workflow-details"
+                      id="workflow-details-blueprint"
+                      style="display: none">
+                      <div class="approval-info">
+                        <div class="approval-info-row">
+                          <span class="approval-info-label">Approved by:</span>
+                          <span class="approval-info-value">Maria Garcia</span>
+                        </div>
+                        <div class="approval-info-row">
+                          <span class="approval-info-label">Approved at:</span>
+                          <span class="approval-info-value"
+                            >2025-09-19 14:32</span
+                          >
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   <div class="progress-step">
                     <div class="step-circle current">2</div>
                     <div class="step-details">
                       <div class="step-label current">Spine/Setup</div>
                       <div class="step-status current">In Progress</div>
+                    </div>
+                    <div class="step-btn-details-container">
+                      <button
+                        class="show-details-btn"
+                        onclick="toggleWorkflowDetails('spine')">
+                        Show Details
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="workflow-details"
+                    id="workflow-details-spine"
+                    style="display: none">
+                    <div class="approval-info">
+                      <div class="approval-info-row">
+                        <span class="approval-info-label">Approved by:</span>
+                        <span class="approval-info-value">James Wilson</span>
+                      </div>
+                      <div class="approval-info-row">
+                        <span class="approval-info-label">Approved at:</span>
+                        <span class="approval-info-value"
+                          >2025-09-18 10:15</span
+                        >
+                      </div>
                     </div>
                   </div>
                   <div class="step-connector"></div>
@@ -1515,6 +1616,30 @@ Communicate historical arguments effectively</textarea
                       <div class="step-label">Construction</div>
                       <div class="step-status">Pending</div>
                     </div>
+                    <div class="step-btn-details-container">
+                      <button
+                        class="show-details-btn"
+                        onclick="toggleWorkflowDetails('construction')">
+                        Show Details
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="workflow-details"
+                    id="workflow-details-construction"
+                    style="display: none">
+                    <div class="approval-info">
+                      <div class="approval-info-row">
+                        <span class="approval-info-label">Approved by:</span>
+                        <span class="approval-info-value">Sarah Johnson</span>
+                      </div>
+                      <div class="approval-info-row">
+                        <span class="approval-info-label">Approved at:</span>
+                        <span class="approval-info-value"
+                          >2025-09-17 09:00</span
+                        >
+                      </div>
+                    </div>
                   </div>
                   <div class="step-connector"></div>
 
@@ -1523,6 +1648,30 @@ Communicate historical arguments effectively</textarea
                     <div class="step-details">
                       <div class="step-label">Final Review</div>
                       <div class="step-status">Pending</div>
+                    </div>
+                    <div class="step-btn-details-container">
+                      <button
+                        class="show-details-btn"
+                        onclick="toggleWorkflowDetails('final')">
+                        Show Details
+                      </button>
+                    </div>
+                  </div>
+                  <div
+                    class="workflow-details"
+                    id="workflow-details-final"
+                    style="display: none">
+                    <div class="approval-info">
+                      <div class="approval-info-row">
+                        <span class="approval-info-label">Approved by:</span>
+                        <span class="approval-info-value">John Smith</span>
+                      </div>
+                      <div class="approval-info-row">
+                        <span class="approval-info-label">Approved at:</span>
+                        <span class="approval-info-value"
+                          >2025-09-16 16:45</span
+                        >
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1767,6 +1916,13 @@ Communicate historical arguments effectively</textarea
         const panel = document.getElementById("rightPanel");
         appState.rightPanelCollapsed = !appState.rightPanelCollapsed;
         panel.classList.toggle("collapsed", appState.rightPanelCollapsed);
+        // Hide tool-selector dropdown when collapsed
+        const toolSelector = document.getElementById("toolSelector");
+        if (toolSelector) {
+          toolSelector.style.display = appState.rightPanelCollapsed
+            ? "none"
+            : "";
+        }
       }
 
       function activateTool(toolName) {
@@ -1928,6 +2084,34 @@ Communicate historical arguments effectively</textarea
 
         const activeTab = document.getElementById(tabMap[tabName]);
         if (activeTab) activeTab.classList.add("active");
+      }
+
+      function toggleWorkflowDetails(step) {
+        const details = document.getElementById("workflow-details-" + step);
+        const btn = details.previousElementSibling;
+        // Find the step-connector related to this details block
+        let connector = null;
+        // If details is inside a flex row, connector is previous sibling or parent
+        if (details && details.parentElement) {
+          connector = details.parentElement.querySelector(".step-connector");
+        }
+        if (details) {
+          if (details.style.display === "none") {
+            details.style.display = "block";
+            if (btn && btn.classList.contains("show-details-btn")) {
+              btn.textContent = "Hide Details";
+            }
+            // Set connector height to 65px if open
+            if (connector) connector.style.height = "65px";
+          } else {
+            details.style.display = "none";
+            if (btn && btn.classList.contains("show-details-btn")) {
+              btn.textContent = "Show Details";
+            }
+            // Reset connector height when closed
+            if (connector) connector.style.height = "16px";
+          }
+        }
       }
     </script>
   </body>
