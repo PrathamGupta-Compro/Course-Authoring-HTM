@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Course Authoring - Blank State</title>
     <style>
+      /* Progress Workflow Bar Styles */
+      .lifecycle-progress {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+        /* Only keep the latest definitions below */
+      /* Tool Selector Dropdown Styles */
+      .tool-selector {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 12px;
+        background: white;
+        color: #374151;
+        width: 80%;
+      }
+      .tool-selector:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
       * {
         margin: 0;
         padding: 0;
@@ -32,7 +54,7 @@
       .header-left {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 32px;
       }
       .header-actions {
         display: flex;
@@ -168,7 +190,9 @@
       }
 
       .panel-content {
-        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         overflow: hidden;
         transition: opacity 0.2s;
       }
@@ -188,6 +212,55 @@
         cursor: pointer;
         transition: color 0.2s;
         display: none;
+      }
+      .ai-placeholder {
+        text-align: center;
+        padding: 40px 20px;
+        color: #6b7280;
+        background: linear-gradient(135deg, #fefbf3 0%, #f0f9ff 100%);
+        border-radius: 8px;
+      }
+
+      .ai-placeholder-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        background: linear-gradient(135deg, #f59e0b 0%, #3b82f6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .ai-placeholder-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 4px;
+      }
+
+      .ai-placeholder-subtitle {
+        font-size: 11px;
+        color: #9ca3af;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 600;
+      }
+
+      .ai-feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0;
+      }
+
+      .ai-feature-list li {
+        padding: 4px 0;
+        font-size: 12px;
+        color: #6b7280;
+      }
+
+      .ai-feature-list li:before {
+        content: "✨ ";
+        margin-right: 6px;
       }
 
       .panel.collapsed .collapsed-icon {
@@ -276,6 +349,11 @@
         min-height: 100px;
         resize: vertical;
       }
+      .right-panel-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+      }
 
       .btn {
         padding: 8px 16px;
@@ -310,6 +388,206 @@
       .btn-primary:hover:not(:disabled) {
         background: #2563eb;
       }
+      .workflow-progress {
+        margin-bottom: 24px;
+      }
+
+      .progress-steps {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .progress-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .step-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        border: 2px solid #e5e7eb;
+        background: white;
+        flex-shrink: 0;
+      }
+
+      .step-circle.completed {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+      }
+
+      .step-circle.current {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+        animation: pulse 2s infinite;
+      }
+
+      .step-circle.pending {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #9ca3af;
+      }
+      .step-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        border: 2px solid #e5e7eb;
+        background: white;
+        flex-shrink: 0;
+      }
+
+      .step-circle.completed {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+      }
+
+      .step-circle.current {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        color: white;
+        animation: pulse 2s infinite;
+      }
+
+      .step-circle.pending {
+        background: #f3f4f6;
+        border-color: #d1d5db;
+        color: #9ca3af;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .step-details {
+        flex: 1;
+      }
+
+      .step-label {
+        font-size: 13px;
+        color: #374151;
+        font-weight: 500;
+        margin-bottom: 2px;
+      }
+
+      .step-label.current {
+        color: #3b82f6;
+        font-weight: 600;
+      }
+
+      .step-status {
+        font-size: 11px;
+        color: #6b7280;
+      }
+
+      .step-status.current {
+        color: #3b82f6;
+      }
+
+      .step-connector {
+        width: 2px;
+        height: 16px;
+        background: #e5e7eb;
+        margin-left: 11px;
+        margin-top: -8px;
+        margin-bottom: -8px;
+      }
+
+      .step-connector.completed {
+        background: #10b981;
+      }
+      /* Improved styling for workflow details and button container */
+      .progress-step {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+      }
+      .progress-step > .step-details {
+        flex: 1;
+      }
+      .header-top-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .progress-step > .step-circle {
+        margin-top: 4px;
+      }
+      .progress-step .step-btn-details-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
+        margin-left: 0;
+      }
+      .show-details-btn {
+        margin-top: 6px;
+        margin-bottom: 2px;
+        padding: 4px 10px;
+        background: #f3f4f6;
+        color: #2563eb;
+        border: 1px solid #e0e7ef;
+        border-radius: 5px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+        display: inline-block;
+        box-shadow: none;
+      }
+      .show-details-btn:hover {
+        background: #e0f2fe;
+        border-color: #2563eb;
+      }
+      .workflow-details {
+        margin-top: 2px;
+        margin-left: 30px;
+        padding: 8px 12px;
+        background: #f9fafb;
+        border-radius: 5px;
+        color: #374151;
+        font-size: 13px;
+        border: 1px solid #e5e7eb;
+        display: none;
+        width: 80%;
+        word-break: break-word;
+        position: relative;
+      }
+      .workflow-details .approval-info-row {
+        margin-bottom: 7px;
+        display: flex;
+        align-items: baseline;
+      }
+      .lifecycle-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+      .workflow-details .approval-info-label {
+        font-weight: bold;
+        margin-right: 8px;
+        display: inline-block;
+      }
     </style>
   </head>
   <body>
@@ -328,21 +606,7 @@
           ←
         </button>
         <h1 class="course-title">US History 2</h1>
-        <div class="header-dropdown" style="margin-left: 16px">
-          <select
-            id="versionSelect"
-            style="
-              padding: 6px 12px;
-              border-radius: 4px;
-              border: 1px solid #d1d5db;
-              font-size: 13px;
-            ">
-            <option>Version 1.0 (Draft)</option>
-            <option>Version 0.9</option>
-            <option>Version 0.8</option>
-          </select>
-        </div>
-        <div class="status-badge" style="background: #e0f2fe; color: #0369a1">
+        <!-- <div class="status-badge" style="background: #e0f2fe; color: #0369a1">
           <div
             class="status-dot"
             style="
@@ -352,6 +616,125 @@
               border-radius: 50%;
             "></div>
           Blueprint
+        </div> -->
+        <div class="lifecycle-progress" style="display: flex">
+          <div
+            class="progress-step"
+            style="display: flex; align-items: center; gap: 6px">
+            <div
+              class="step-circle"
+              style="
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 600;
+                border: 2px solid #3b82f6;
+                background: #3b82f6;
+                color: white;
+                margin-top: 0px;
+                animation: pulse 2s infinite;">
+              1
+            </div>
+            <div
+              class="step-label current"
+              style="font-size: 11px; color: #3b82f6; font-weight: 500">
+              Blueprint
+            </div>
+          </div>
+          <div
+            class="step-connector"
+            style="width: 16px; height: 2px; background: #e5e7eb"></div>
+          <div
+            class="progress-step"
+            style="display: flex; align-items: center; gap: 6px">
+            <div
+              class="step-circle current"
+              style="
+                width: 20px;
+                height: 20px;
+                margin-top: 0px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 600;
+                border: 2px solid #d1d5db;
+                background: #f3f4f6;
+                color: #9ca3af;
+              ">
+              2
+            </div>
+            <div
+              class="step-label"
+              style="font-size: 11px; color: #6b7280; font-weight: 600">
+              Spine/Setup
+            </div>
+          </div>
+          <div
+            class="step-connector"
+            style="width: 16px; height: 2px; background: #e5e7eb"></div>
+          <div
+            class="progress-step"
+            style="display: flex; align-items: center; gap: 6px">
+            <div
+              class="step-circle pending"
+              style="
+                width: 20px;
+                height: 20px;
+                margin-top: 0px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 600;
+                border: 2px solid #d1d5db;
+                background: #f3f4f6;
+                color: #9ca3af;
+              ">
+              3
+            </div>
+            <div
+              class="step-label"
+              style="font-size: 11px; color: #6b7280; font-weight: 500">
+              Construction
+            </div>
+          </div>
+          <div
+            class="step-connector"
+            style="width: 16px; height: 2px; background: #e5e7eb"></div>
+          <div
+            class="progress-step"
+            style="display: flex; align-items: center; gap: 6px">
+            <div
+              class="step-circle pending"
+              style="
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                margin-top: 0px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                font-weight: 600;
+                border: 2px solid #d1d5db;
+                background: #f3f4f6;
+                color: #9ca3af;
+              ">
+              4
+            </div>
+            <div
+              class="step-label"
+              style="font-size: 11px; color: #6b7280; font-weight: 500">
+              Final Review
+            </div>
+          </div>
         </div>
       </div>
       <div class="header-actions">
@@ -661,7 +1044,12 @@
       </div>
       <div id="rightPanel" class="panel right-panel">
         <div class="panel-header">
-          <div class="panel-title">Audit Trail</div>
+          <select class="tool-selector" id="toolSelector" style="width: 80%">
+            <option value="audit">Audit Log</option>
+            <option value="workflow">Workflow & Approval</option>
+            <option value="comments">Comments</option>
+            <option value="ai">AI Agent</option>
+          </select>
           <button
             class="collapse-btn"
             id="rightCollapseBtn"
@@ -680,13 +1068,75 @@
         </div>
         <div
           class="panel-content"
-          style="
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          ">
-          <span style="color: #b0b7c3; font-size: 15px">No audit logs yet</span>
+          style="padding: 24px;"
+        >
+          <div id="audit-tool" style="margin-top: 100px;">
+            <span style="color: #b0b7c3; font-size: 15px">No audit logs yet</span>
+          </div>
+          <div id="workflow-tool" style="display: none; width: 100%;">
+              <div class="workflow-progress">
+                <div class="progress-steps">
+                  <div class="progress-step">
+                    <div class="step-circle current">1</div>
+                    <div class="step-details">
+                      <div class="step-label current">Blueprint</div>
+                      <div class="step-status current">In Progress</div>
+                    </div>
+                  </div>
+                  <div style="display: flex">
+                    <div class="step-connector"></div>
+                  </div>
+
+                  <div class="progress-step">
+                    <div class="step-circle">2</div>
+                    <div class="step-details">
+                      <div class="step-label">Spine/Setup</div>
+                      <div class="step-status">Pending</div>
+                    </div>
+                  </div>
+                  <div style="display: flex">
+                    <div class="step-connector"></div>
+                  </div>
+
+                  <div class="progress-step">
+                    <div class="step-circle pending">3</div>
+                    <div class="step-details">
+                      <div class="step-label">Construction</div>
+                      <div class="step-status">Pending</div>
+                    </div>
+                  </div>
+                  <div class="step-connector"></div>
+
+                  <div class="progress-step">
+                    <div class="step-circle pending">4</div>
+                    <div class="step-details">
+                      <div class="step-label">Final Review</div>
+                      <div class="step-status">Pending</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <div id="comments-tool" style="display: none; margin-top: 100px;">
+              <div style="color: #b0b7c3; font-size: 15px">No comments yet</div>
+          </div>
+          <div id="ai-tool" style="display: none">
+              <div class="ai-placeholder">
+                <div class="ai-placeholder-icon">🤖</div>
+                <div class="ai-placeholder-title">AI Agent</div>
+                <div class="ai-placeholder-subtitle">Coming Soon</div>
+                <div>Future AI features will help you with:</div>
+                <ul class="ai-feature-list">
+                  <li>Content suggestions</li>
+                  <li>Learning objective alignment</li>
+                  <li>Assessment generation</li>
+                  <li>Standards compliance check</li>
+                </ul>
+              </div>
+          </div>
+            </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -708,33 +1158,35 @@
     });
 
     function initializeInterface() {
-      // Version dropdown
-
       // Panel collapse buttons
-      document
-        .getElementById("structureBtn")
-        .addEventListener("click", toggleLeftPanel);
-      document
-        .getElementById("auditBtn")
-        .addEventListener("click", toggleRightPanel);
-      document
-        .getElementById("courseInfoToggle")
-        .addEventListener("click", toggleCourseInfoAccordion);
-      document
-        .getElementById("rightCollapseBtn")
-        ?.addEventListener("click", toggleRightPanel);
-      document
-        .getElementById("courseStructureToggle")
-        .addEventListener("click", toggleCourseStructureAccordion);
-      document
-        .getElementById("somethingElseToggle")
-        .addEventListener("click", toggleSomethingElseAccordion);
+      document.getElementById("structureBtn").addEventListener("click", toggleLeftPanel);
+      document.getElementById("auditBtn").addEventListener("click", toggleRightPanel);
+      document.getElementById("courseInfoToggle").addEventListener("click", toggleCourseInfoAccordion);
+      document.getElementById("rightCollapseBtn")?.addEventListener("click", toggleRightPanel);
+      document.getElementById("courseStructureToggle").addEventListener("click", toggleCourseStructureAccordion);
+      document.getElementById("somethingElseToggle").addEventListener("click", toggleSomethingElseAccordion);
       document.querySelectorAll(".nav-item").forEach((item) => {
         item.addEventListener("click", () => {
           const section = item.getAttribute("data-section");
           showSection(section);
         });
       });
+      // Tool selector dropdown event
+      document.getElementById("toolSelector").addEventListener("change", function(e) {
+        switchTool(e.target.value);
+      });
+      // Show audit log by default
+      switchTool("audit");
+    }
+    // Show/hide right panel tool sections
+    function switchTool(toolName) {
+      var tools = ["audit", "workflow", "comments", "ai"];
+      tools.forEach(function(tool) {
+        var el = document.getElementById(tool + "-tool");
+        if (el) el.style.display = "none";
+      });
+      var selected = document.getElementById(toolName + "-tool");
+      if (selected) selected.style.display = "block";
     }
     function toggleSomethingElseAccordion() {
       appState.somethingElseOpen = !appState.somethingElseOpen;
@@ -832,6 +1284,13 @@
       const panel = document.getElementById("rightPanel");
       appState.rightPanelCollapsed = !appState.rightPanelCollapsed;
       panel.classList.toggle("collapsed", appState.rightPanelCollapsed);
+      // Hide tool-selector dropdown when collapsed
+        const toolSelector = document.getElementById("toolSelector");
+        if (toolSelector) {
+          toolSelector.style.display = appState.rightPanelCollapsed
+            ? "none"
+            : "";
+        }
     }
   </script>
 </html>
