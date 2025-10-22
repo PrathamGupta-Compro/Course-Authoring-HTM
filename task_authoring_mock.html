@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradPath - Task Authoring (Slice 1 MVP - All EPICs)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: #2563eb;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .lifecycle-indicator {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .course-tree {
+            font-size: 0.9rem;
+        }
+
+        .tree-item {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .tree-item:hover {
+            background: #f3f4f6;
+        }
+
+        .tree-item.active {
+            background: #dbeafe;
+            border-left: 3px solid #2563eb;
+        }
+
+        .tree-item.unit {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .tree-item.task {
+            margin-left: 1rem;
+            color: #6b7280;
+        }
+
+        .main-content {
+            background: white;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .version-selector {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .task-header {
+            margin-bottom: 2rem;
+        }
+
+        .task-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            background: #f3f4f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .competency-tag {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge.draft {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.review {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .status-badge.approved {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            color: #6b7280;
+        }
+
+        .tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .content-segments {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fafbfc;
+        }
+
+        .segment {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            background: white;
+            position: relative;
+        }
+
+        .segment-header {
+            background: #f8fafc;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .segment-title-area {
+            flex: 1;
+        }
+
+        .segment-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .segment-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .segment-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 0.125rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        .segment-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: #f9fafb;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .segment-content {
+            padding: 1rem;
+        }
+
+        .block {
+            border: 1px dashed #d1d5db;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #fefefe;
+            position: relative;
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .block-type {
+            font-size: 0.8rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .block-content {
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .add-block {
+            border: 2px dashed #cbd5e1;
+            border-radius: 4px;
+            padding: 2rem;
+            text-align: center;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-block:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .add-segment {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .collaboration-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .audit-info {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            margin-top: 0.5rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .block-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .block-type-option {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .block-type-option:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-section h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .audit-entry {
+            padding: 0.5rem;
+            border-left: 3px solid #e5e7eb;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            background: #f9fafb;
+        }
+
+        .audit-entry.recent {
+            border-left-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .library-item {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .library-item:hover {
+            background: #f3f4f6;
+        }
+
+        .competency-item {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            background: #f8fafc;
+        }
+
+        .competency-item.mapped {
+            background: #dbeafe;
+            border-color: #2563eb;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .workflow-step.active {
+            background: #dbeafe;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .workflow-step.completed {
+            color: #16a34a;
+        }
+
+        .step-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .step-indicator.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .step-indicator.completed {
+            background: #16a34a;
+            color: white;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .metadata-form {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .form-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+
+        .standards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .standard-item {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .standard-item.selected {
+            background: #dbeafe;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">GradPath Authoring (All EPICs - Slice 1)</div>
+        <div class="header-actions">
+            <div class="lifecycle-indicator">
+                Draft → Review → Approved → Published
+            </div>
+            <div class="user-info">
+                <span>Ms. Johnson</span>
+                <button class="btn btn-small" onclick="showLibrary()">Library</button>
+                <button class="btn btn-small" onclick="showPublishing()">Publish</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left Sidebar: Course Structure & Navigation -->
+        <div class="sidebar">
+            <div class="panel-header">Course Structure</div>
+            <div class="course-tree">
+                <div class="tree-item unit">📚 US History 2</div>
+                <div class="tree-item unit">📁 Challenge Unit 1</div>
+                <div class="tree-item task">📄 Turn of the 20th Century</div>
+                <div class="tree-item task active">📄 WWII: Pacific and European Theaters</div>
+                <div class="tree-item task">📄 Great Depression</div>
+                <div class="tree-item unit">📁 Challenge Unit 2</div>
+                <div class="tree-item task">📄 New Deal Programs</div>
+                <div class="tree-item task">📄 Causes of WWII</div>
+            </div>
+
+            <div class="panel-section" style="margin-top: 2rem;">
+                <h4>Workflow Status</h4>
+                <div class="workflow-step completed">
+                    <div class="step-indicator completed">✓</div>
+                    <span>Created</span>
+                </div>
+                <div class="workflow-step active">
+                    <div class="step-indicator active">2</div>
+                    <span>Authoring</span>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-indicator">3</div>
+                    <span>Review</span>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-indicator">4</div>
+                    <span>Approved</span>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-indicator">5</div>
+                    <span>Published</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="toolbar">
+                <div class="toolbar-left">
+                    <button class="btn">Save Draft</button>
+                    <button class="btn btn-primary">Submit for Review</button>
+                    <button class="btn" onclick="showVersions()">Versions</button>
+                </div>
+                <div class="toolbar-right">
+                    <select class="version-selector">
+                        <option>v1.0 (Current)</option>
+                        <option>v0.9 (Previous)</option>
+                    </select>
+                    <span class="collaboration-indicator" title="Sarah Miller is editing"></span>
+                    <span style="font-size: 0.9rem; color: #6b7280;">Collaborative Editing</span>
+                </div>
+            </div>
+
+            <div class="task-header">
+                <div class="task-title">WWII: Pacific and European Theaters</div>
+                <div class="task-meta">
+                    <span class="meta-tag">History Core</span>
+                    <span class="meta-tag">11th Grade</span>
+                    <span class="meta-tag">2 weeks duration</span>
+                    <span class="competency-tag">Think Critically</span>
+                    <span class="competency-tag">Communicate</span>
+                    <span class="status-badge draft">Draft</span>
+                </div>
+                <div class="audit-info">Created by Ms. Johnson on Sept 15, 2025 • Last modified by S. Miller 2 hours ago</div>
+            </div>
+
+            <div class="tab-navigation">
+                <div class="tab active" onclick="showTab('segments')">Content Segments</div>
+                <div class="tab" onclick="showTab('metadata')">Metadata</div>
+                <div class="tab" onclick="showTab('standards')">Standards</div>
+                <div class="tab" onclick="showTab('preview')">Preview</div>
+            </div>
+
+            <!-- Content Segments Tab -->
+            <div id="segments-content" class="content-segments">
+                <div class="segment">
+                    <div class="segment-header">
+                        <div class="segment-title-area">
+                            <div class="segment-title">Segment 1: Context & Overview</div>
+                            <div class="segment-tags">
+                                <span class="segment-tag">Sub-skill: Historical Context</span>
+                                <span class="segment-tag">Assessment: Completion</span>
+                                <span class="segment-tag">Feedback: Enabled</span>
+                            </div>
+                        </div>
+                        <div class="segment-actions">
+                            <button class="btn btn-small" onclick="editSegmentTags()">Tags</button>
+                            <button class="btn btn-small">Edit</button>
+                        </div>
+                    </div>
+                    <div class="segment-content">
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-type">Rich Text</span>
+                                <button class="btn btn-small">Edit</button>
+                            </div>
+                            <div class="block-content">
+                                <p><strong>Essential Question:</strong> How did WWII reshape global politics and society?</p>
+                                <p>"We shall fight on the beaches, we shall fight on the landing grounds..." - Churchill</p>
+                            </div>
+                        </div>
+
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-type">Third-Party: Google Doc</span>
+                                <button class="btn btn-small">Configure</button>
+                            </div>
+                            <div class="block-content">
+                                📄 <strong>WWII Timeline Activity</strong><br>
+                                <em>Interactive timeline creation using Google Docs collaboration</em>
+                            </div>
+                        </div>
+
+                        <div class="add-block" onclick="showBlockModal()">
+                            + Add Content Block
+                        </div>
+                    </div>
+                </div>
+
+                <div class="segment">
+                    <div class="segment-header">
+                        <div class="segment-title-area">
+                            <div class="segment-title">Segment 2: Research & Analysis</div>
+                            <div class="segment-tags">
+                                <span class="segment-tag">Sub-skill: Source Analysis</span>
+                                <span class="segment-tag">Assessment: Teacher Review</span>
+                                <span class="segment-tag">Personalization: Enabled</span>
+                            </div>
+                        </div>
+                        <div class="segment-actions">
+                            <button class="btn btn-small" onclick="editSegmentTags()">Tags</button>
+                            <button class="btn btn-small">Edit</button>
+                        </div>
+                        <div class="collaboration-indicator" title="Currently being edited by Sarah Miller"></div>
+                    </div>
+                    <div class="segment-content">
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-type">Media</span>
+                                <button class="btn btn-small">Edit</button>
+                            </div>
+                            <div class="block-content">
+                                🎥 <strong>Primary Source Videos</strong><br>
+                                Collection of WWII documentary clips and speech recordings
+                            </div>
+                        </div>
+
+                        <div class="add-block" onclick="showBlockModal()">
+                            + Add Content Block
+                        </div>
+                    </div>
+                </div>
+
+                <div class="add-segment">
+                    <button class="btn" onclick="addSegment()">+ Add Content Segment</button>
+                </div>
+            </div>
+
+            <!-- Metadata Tab -->
+            <div id="metadata-content" class="hidden">
+                <div class="metadata-form">
+                    <div class="form-group">
+                        <label>Task Title</label>
+                        <input type="text" value="WWII: Pacific and European Theaters">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea rows="3">Analyze the major theaters of WWII and their impact on global politics...</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <select>
+                            <option>History Core</option>
+                            <option>Social Studies</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Grade Level</label>
+                        <select>
+                            <option>11th Grade</option>
+                            <option>10th Grade</option>
+                            <option>12th Grade</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration</label>
+                        <input type="text" value="2 weeks">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Standards Tab -->
+            <div id="standards-content" class="hidden">
+                <h4>State Standards Alignment</h4>
+                <div class="standards-grid">
+                    <div class="standard-item selected">CCSS.ELA-LITERACY.RH.11-12.1</div>
+                    <div class="standard-item selected">CCSS.ELA-LITERACY.RH.11-12.7</div>
+                    <div class="standard-item">CCSS.ELA-LITERACY.WHST.11-12.1</div>
+                    <div class="standard-item">NCSS.NSS-USH.5-12.8</div>
+                </div>
+            </div>
+
+            <!-- Preview Tab -->
+            <div id="preview-content" class="hidden">
+                <p>Student view preview would show here...</p>
+            </div>
+        </div>
+
+        <!-- Right Panel: Audit, Library, Competencies -->
+        <div class="right-panel">
+            <div class="panel-section">
+                <div class="panel-header">Audit Trail</div>
+                <div class="audit-entry recent">
+                    <strong>S. Miller</strong> modified Segment 2<br>
+                    <small>2 hours ago</small>
+                </div>
+                <div class="audit-entry">
+                    <strong>Ms. Johnson</strong> added content block<br>
+                    <small>Yesterday</small>
+                </div>
+                <div class="audit-entry">
+                    <strong>Ms. Johnson</strong> created task<br>
+                    <small>Sept 15, 2025</small>
+                </div>
+                <button class="btn btn-small" onclick="showFullAudit()">View Full Trail</button>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-header">Content Library</div>
+                <div class="library-item" onclick="useFromLibrary()">
+                    📄 WWII Primary Sources Collection
+                </div>
+                <div class="library-item" onclick="useFromLibrary()">
+                    🎥 Historical Analysis Rubric
+                </div>
+                <div class="library-item" onclick="useFromLibrary()">
+                    ✅ Document Analysis Activity
+                </div>
+                <button class="btn btn-small" onclick="showLibrary()">Browse Library</button>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-header">Competency Mapping</div>
+                <div class="competency-item mapped">
+                    <strong>Think Critically</strong><br>
+                    <small>Analyze and evaluate sources</small>
+                </div>
+                <div class="competency-item mapped">
+                    <strong>Communicate</strong><br>
+                    <small>Present historical arguments</small>
+                </div>
+                <div class="competency-item">
+                    <strong>Collaborate</strong><br>
+                    <small>Work with peers on projects</small>
+                </div>
+                <button class="btn btn-small" onclick="mapCompetencies()">Map Competencies</button>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-header">AI Assistance</div>
+                <p style="font-size: 0.85rem; color: #6b7280; text-align: center; padding: 1rem;">
+                    AI features not available in Slice 1<br>
+                    <small>Coming in Slice 2</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="blockModal" class="modal">
+        <div class="modal-content">
+            <h3>Add Content Block</h3>
+            <div class="block-types">
+                <div class="block-type-option" onclick="addBlock('text')">
+                    <div class="icon">📝</div>
+                    <div>Rich Text</div>
+                </div>
+                <div class="block-type-option" onclick="addBlock('media')">
+                    <div class="icon">🎥</div>
+                    <div>Media</div>
+                </div>
+                <div class="block-type-option" onclick="addBlock('assessment')">
+                    <div class="icon">✅</div>
+                    <div>Simple Assessment</div>
+                </div>
+                <div class="block-type-option" onclick="addBlock('google-doc')">
+                    <div class="icon">📄</div>
+                    <div>Google Doc</div>
+                </div>
+            </div>
+            <div style="margin-top: 1.5rem; text-align: right;">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all content
+            document.getElementById('segments-content').classList.add('hidden');
+            document.getElementById('metadata-content').classList.add('hidden');
+            document.getElementById('standards-content').classList.add('hidden');
+            document.getElementById('preview-content').classList.add('hidden');
+            
+            // Show selected content
+            document.getElementById(tabName + '-content').classList.remove('hidden');
+            
+            // Update tab styling
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function showBlockModal() {
+            document.getElementById('blockModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('blockModal').style.display = 'none';
+        }
+
+        function addBlock(type) {
+            const blockTypes = {
+                'text': { name: 'Rich Text' },
+                'media': { name: 'Media' },
+                'assessment': { name: 'Simple Assessment' },
+                'google-doc': { name: 'Google Doc' }
+            };
+            alert(`Added ${blockTypes[type].name} block to current segment!`);
+            closeModal();
+        }
+
+        function addSegment() {
+            alert('Add Content Segment: Configure tags for sub-skills, assessment type, and feature controls.');
+        }
+
+        function editSegmentTags() {
+            alert('Edit Segment Tags:\n• Sub-skills mapping\n• Assessment configuration\n• Feature controls (feedback, personalization)\n• Navigation settings');
+        }
+
+        function showVersions() {
+            alert('Version Management:\n• v1.0 (Current Draft)\n• v0.9 (Previous Published)\n• View differences\n• Restore previous version');
+        }
+
+        function showLibrary() {
+            alert('Content Library (Basic Slice 1):\n• Browse existing content blocks\n• Reuse proven activities\n• Save current content to library\n• Basic search functionality');
+        }
+
+        function showPublishing() {
+            alert('Publishing Workflow:\n• Submit for Review\n• Department Head Approval\n• Publish to Students\n• Archive Old Versions');
+        }
+
+        function showFullAudit() {
+            alert('Complete Audit Trail:\n• All creation and modification events\n• User attribution and timestamps\n• Change details and version history\n• Export audit reports');
+        }
+
+        function useFromLibrary() {
+            alert('Use Library Item: Insert selected content block or activity into current segment.');
+        }
+
+        function mapCompetencies() {
+            alert('Competency Mapping:\n• Link segments to competencies\n• Map sub-skills to learning objectives\n• Align with state standards\n• Configure assessment rubrics');
+        }
+
+        // Simulate real-time collaboration
+        setInterval(() => {
+            const indicators = document.querySelectorAll('.collaboration-indicator');
+            indicators.forEach(indicator => {
+                indicator.style.opacity = indicator.style.opacity === '0.5' ? '1' : '0.5';
+            });
+        }, 2000);
+    </script>
+</body>
+</html>

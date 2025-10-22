@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GradPath - Task Review (Slice 1 MVP)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .header {
+            background: #dc2626;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .lifecycle-indicator {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .review-mode-badge {
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr 320px;
+            height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            background: white;
+            border-left: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .review-queue {
+            font-size: 0.9rem;
+        }
+
+        .queue-item {
+            margin: 0.5rem 0;
+            padding: 0.75rem;
+            cursor: pointer;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+            background: #fafbfc;
+        }
+
+        .queue-item:hover {
+            background: #f3f4f6;
+        }
+
+        .queue-item.active {
+            background: #fef2f2;
+            border-color: #dc2626;
+        }
+
+        .queue-item-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .queue-item-meta {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .priority-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .priority-high {
+            background: #dc2626;
+        }
+
+        .priority-normal {
+            background: #16a34a;
+        }
+
+        .main-content {
+            background: white;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .review-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: #f9fafb;
+        }
+
+        .btn-approve {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+
+        .btn-approve:hover {
+            background: #15803d;
+        }
+
+        .btn-reject {
+            background: #dc2626;
+            color: white;
+            border-color: #dc2626;
+        }
+
+        .btn-reject:hover {
+            background: #b91c1c;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .task-header {
+            margin-bottom: 2rem;
+        }
+
+        .task-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            background: #f3f4f6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .competency-tag {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .review-info {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-info-title {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 0.5rem;
+        }
+
+        .submission-details {
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .content-segments {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fafbfc;
+            position: relative;
+        }
+
+        .readonly-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.7);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .segment {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            background: white;
+            position: relative;
+        }
+
+        .segment-header {
+            background: #f8fafc;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .segment-title-area {
+            flex: 1;
+        }
+
+        .segment-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+
+        .segment-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .segment-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 0.125rem 0.5rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        .review-actions-segment {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .comment-indicator {
+            background: #fbbf24;
+            color: #92400e;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .segment-content {
+            padding: 1rem;
+            position: relative;
+        }
+
+        .block {
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: #fefefe;
+            position: relative;
+        }
+
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .block-type {
+            font-size: 0.8rem;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .block-content {
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .workflow-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .workflow-step.active {
+            background: #fef2f2;
+            border-radius: 4px;
+            font-weight: 500;
+            color: #991b1b;
+        }
+
+        .workflow-step.completed {
+            color: #16a34a;
+        }
+
+        .step-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .step-indicator.active {
+            background: #dc2626;
+            color: white;
+        }
+
+        .step-indicator.completed {
+            background: #16a34a;
+            color: white;
+        }
+
+        .review-checklist {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .checklist-item input {
+            margin: 0;
+        }
+
+        .comment-section {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .comment-thread {
+            margin-bottom: 1rem;
+        }
+
+        .comment {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-author {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .comment-time {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .comment-content {
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .add-comment {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        .audit-entry {
+            padding: 0.5rem;
+            border-left: 3px solid #e5e7eb;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            background: #f9fafb;
+        }
+
+        .audit-entry.review-action {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .standards-compliance {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .compliance-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .compliance-status {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
+        }
+
+        .compliance-status.pass {
+            background: #16a34a;
+        }
+
+        .compliance-status.warning {
+            background: #f59e0b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">GradPath Review Mode</div>
+        <div class="header-actions">
+            <div class="lifecycle-indicator">
+                Draft → Review → Approved → Published
+            </div>
+            <div class="review-mode-badge">REVIEW MODE</div>
+            <div class="user-info">
+                <span>Dr. Sarah Chen (Dept. Head)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left Sidebar: Review Queue -->
+        <div class="sidebar">
+            <div class="panel-header">Review Queue (5)</div>
+            <div class="review-queue">
+                <div class="queue-item active">
+                    <div class="queue-item-title">
+                        <span class="priority-indicator priority-high"></span>
+                        WWII: Pacific and European Theaters
+                    </div>
+                    <div class="queue-item-meta">
+                        Ms. Johnson • Submitted 2 days ago<br>
+                        History Core • 11th Grade
+                    </div>
+                </div>
+                
+                <div class="queue-item">
+                    <div class="queue-item-title">
+                        <span class="priority-indicator priority-normal"></span>
+                        Great Depression Economics
+                    </div>
+                    <div class="queue-item-meta">
+                        Mr. Davis • Submitted 1 day ago<br>
+                        History Core • 11th Grade
+                    </div>
+                </div>
+                
+                <div class="queue-item">
+                    <div class="queue-item-title">
+                        <span class="priority-indicator priority-normal"></span>
+                        New Deal Programs
+                    </div>
+                    <div class="queue-item-meta">
+                        Ms. Rodriguez • Submitted 4 hours ago<br>
+                        History Core • 11th Grade
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section" style="margin-top: 2rem;">
+                <h4>Review Workflow</h4>
+                <div class="workflow-step completed">
+                    <div class="step-indicator completed">✓</div>
+                    <span>Submitted for Review</span>
+                </div>
+                <div class="workflow-step active">
+                    <div class="step-indicator active">3</div>
+                    <span>Department Review</span>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-indicator">4</div>
+                    <span>Final Approval</span>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-indicator">5</div>
+                    <span>Published</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="review-toolbar">
+                <div>
+                    <strong>Review Decision Required</strong>
+                    <div style="font-size: 0.9rem; color: #6b7280; margin-top: 0.25rem;">
+                        Complete review checklist before approval/rejection
+                    </div>
+                </div>
+                <div class="review-actions">
+                    <button class="btn" onclick="requestChanges()">Request Changes</button>
+                    <button class="btn btn-reject" onclick="rejectTask()">Reject</button>
+                    <button class="btn btn-approve" onclick="approveTask()">Approve</button>
+                </div>
+            </div>
+
+            <div class="task-header">
+                <div class="task-title">WWII: Pacific and European Theaters</div>
+                <div class="task-meta">
+                    <span class="meta-tag">History Core</span>
+                    <span class="meta-tag">11th Grade</span>
+                    <span class="meta-tag">2 weeks duration</span>
+                    <span class="competency-tag">Think Critically</span>
+                    <span class="competency-tag">Communicate</span>
+                    <span class="status-badge">Under Review</span>
+                </div>
+                
+                <div class="review-info">
+                    <div class="review-info-title">Submission Details</div>
+                    <div class="submission-details">
+                        <div><strong>Author:</strong> Ms. Johnson</div>
+                        <div><strong>Submitted:</strong> Sept 17, 2025 at 2:30 PM</div>
+                        <div><strong>Collaborators:</strong> S. Miller</div>
+                        <div><strong>Version:</strong> v1.0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-segments">
+                <div class="segment">
+                    <div class="segment-header">
+                        <div class="segment-title-area">
+                            <div class="segment-title">Segment 1: Context & Overview</div>
+                            <div class="segment-tags">
+                                <span class="segment-tag">Sub-skill: Historical Context</span>
+                                <span class="segment-tag">Assessment: Completion</span>
+                                <span class="segment-tag">Feedback: Enabled</span>
+                            </div>
+                        </div>
+                        <div class="review-actions-segment">
+                            <span class="comment-indicator">2 comments</span>
+                            <button class="btn btn-small" onclick="addComment('segment1')">Comment</button>
+                        </div>
+                    </div>
+                    <div class="segment-content">
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-type">Rich Text</span>
+                                <button class="btn btn-small" onclick="addComment('block1')">Comment</button>
+                            </div>
+                            <div class="block-content">
+                                <p><strong>Essential Question:</strong> How did WWII reshape global politics and society?</p>
+                                <p>"We shall fight on the beaches, we shall fight on the landing grounds..." - Churchill</p>
+                            </div>
+                        </div>
+
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-type">Third-Party: Google Doc</span>
+                                <button class="btn btn-small" onclick="addComment('block2')">Comment</button>
+                            </div>
+                            <div class="block-content">
+                                📄 <strong>WWII Timeline Activity</strong><br>
+                                <em>Interactive timeline creation using Google Docs collaboration</em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="segment">
+                    <div class="segment-header">
+                        <div class="segment-title-area">
+                            <div class="segment-title">Segment 2: Research & Analysis</div>
+                            <div class="segment-tags">
+                                <span class="segment-tag">Sub-skill: Source Analysis</span>
+                                <span class="segment-tag">Assessment: Teacher Review</span>
+                                <span class="segment-tag">Personalization: Enabled</span>
+                            </div>
+                        </div>
+                        <div class="review-actions-segment">
+                            <button class="btn btn-small" onclick="addComment('segment2')">Comment</button>
+                        </div>
+                    </div>
+                    <div class="segment-content">
+                        <div class="block">
+                            <div class="block-header">
+                                <span class="block-type">Media</span>
+                                <button class="btn btn-small" onclick="addComment('block3')">Comment</button>
+                            </div>
+                            <div class="block-content">
+                                🎥 <strong>Primary Source Videos</strong><br>
+                                Collection of WWII documentary clips and speech recordings
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Review Tools -->
+        <div class="right-panel">
+            <div class="panel-section">
+                <div class="panel-header">Review Checklist</div>
+                <div class="review-checklist">
+                    <div class="checklist-item">
+                        <input type="checkbox" checked>
+                        <label>Content aligns with learning objectives</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" checked>
+                        <label>Appropriate for grade level</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" checked>
+                        <label>Standards alignment verified</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Assessment methods appropriate</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox">
+                        <label>Accessibility considerations addressed</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-header">Standards Compliance</div>
+                <div class="standards-compliance">
+                    <div class="compliance-item">
+                        <div class="compliance-status pass">✓</div>
+                        <span>CCSS.ELA-LITERACY.RH.11-12.1</span>
+                    </div>
+                    <div class="compliance-item">
+                        <div class="compliance-status pass">✓</div>
+                        <span>CCSS.ELA-LITERACY.RH.11-12.7</span>
+                    </div>
+                    <div class="compliance-item">
+                        <div class="compliance-status warning">!</div>
+                        <span>NCSS.NSS-USH.5-12.8 (Needs verification)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-header">Comments & Feedback</div>
+                <div class="comment-section">
+                    <div class="comment-thread">
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">Dr. Chen</span>
+                                <span class="comment-time">1 hour ago</span>
+                            </div>
+                            <div class="comment-content">
+                                Consider adding more primary source documents to strengthen historical analysis.
+                            </div>
+                        </div>
+                        
+                        <div class="comment">
+                            <div class="comment-header">
+                                <span class="comment-author">Ms. Johnson</span>
+                                <span class="comment-time">30 mins ago</span>
+                            </div>
+                            <div class="comment-content">
+                                Good point. I'll add Roosevelt's Pearl Harbor speech and Churchill's Iron Curtain address.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="add-comment">
+                        <input type="text" class="comment-input" placeholder="Add a comment...">
+                        <button class="btn btn-small">Post</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-header">Review History</div>
+                <div class="audit-entry review-action">
+                    <strong>Dr. Chen</strong> started review<br>
+                    <small>2 hours ago</small>
+                </div>
+                <div class="audit-entry">
+                    <strong>Ms. Johnson</strong> submitted for review<br>
+                    <small>2 days ago</small>
+                </div>
+                <div class="audit-entry">
+                    <strong>S. Miller</strong> completed collaboration<br>
+                    <small>3 days ago</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval/Rejection Modal -->
+    <div id="decisionModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Approve Task</h3>
+            <div class="form-group">
+                <label>Feedback/Comments:</label>
+                <textarea id="decisionFeedback" rows="4" placeholder="Optional feedback for the author..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Next Steps:</label>
+                <select id="nextSteps">
+                    <option value="publish">Approve and Publish</option>
+                    <option value="final-review">Send to Final Review</option>
+                    <option value="revisions">Request Minor Revisions</option>
+                </select>
+            </div>
+            <div style="margin-top: 1.5rem; text-align: right;">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-approve" id="confirmBtn" onclick="confirmDecision()">Confirm Approval</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDecision = '';
+
+        function approveTask() {
+            currentDecision = 'approve';
+            document.getElementById('modalTitle').textContent = 'Approve Task';
+            document.getElementById('confirmBtn').textContent = 'Confirm Approval';
+            document.getElementById('confirmBtn').className = 'btn btn-approve';
+            document.getElementById('decisionModal').style.display = 'block';
+        }
+
+        function rejectTask() {
+            currentDecision = 'reject';
+            document.getElementById('modalTitle').textContent = 'Reject Task';
+            document.getElementById('confirmBtn').textContent = 'Confirm Rejection';
+            document.getElementById('confirmBtn').className = 'btn btn-reject';
+            document.getElementById('nextSteps').innerHTML = `
+                <option value="major-revisions">Requires Major Revisions</option>
+                <option value="content-issues">Content Issues</option>
+                <option value="standards-noncompliance">Standards Non-compliance</option>
+            `;
+            document.getElementById('decisionModal').style.display = 'block';
+        }
+
+        function requestChanges() {
+            currentDecision = 'changes';
+            document.getElementById('modalTitle').textContent = 'Request Changes';
+            document.getElementById('confirmBtn').textContent = 'Send Back for Changes';
+            document.getElementById('confirmBtn').className = 'btn';
+            document.getElementById('nextSteps').innerHTML = `
+                <option value="minor-revisions">Minor Revisions Needed</option>
+                <option value="clarification">Needs Clarification</option>
+                <option value="additional-content">Additional Content Required</option>
+            `;
+            document.getElementById('decisionModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('decisionModal').style.display = 'none';
+        }
+
+        function confirmDecision() {
+            const feedback = document.getElementById('decisionFeedback').value;
+            const nextStep = document.getElementById('nextSteps').value;
+            
+            if (currentDecision === 'approve') {
+                alert(`Task Approved!\n\nFeedback: ${feedback || 'No feedback provided'}\nNext: ${nextStep}\n\nTask moved to next workflow stage. Audit trail updated.`);
+            } else if (currentDecision === 'reject') {
+                alert(`Task Rejected.\n\nReason: ${feedback || 'No reason provided'}\nAction: ${nextStep}\n\nTask returned to author with feedback.`);
+            } else {
+                alert(`Changes Requested.\n\nComments: ${feedback || 'No comments provided'}\nType: ${nextStep}\n\nTask returned for revisions.`);
+            }
+            
+            closeModal();
+        }
+
+        function addComment(target) {
+            const comments = {
+                'segment1': 'Add comment to Segment 1: Context & Overview',
+                'segment2': 'Add comment to Segment 2: Research & Analysis',
+                'block1': 'Add comment to Rich Text block',
+                'block2': 'Add comment to Google Doc block',
+                'block3': 'Add comment to Media block'
+            };
+            
+            alert(`${comments[target] || 'Add comment'}\n\nComment will be visible to author and tracked in audit trail.`);
+        }
+
+        // Queue item selection
+        document.querySelectorAll('.queue-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.queue-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                alert('Load different task for review: ' + this.querySelector('.queue-item-title').textContent.trim());
+            });
+        });
+
+        // Simulate review progress
+        setTimeout(() => {
+            const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+            checkboxes[3].checked = true; // Mark assessment methods as checked
+        }, 3000);
+    </script>
+</body>
+</html>
